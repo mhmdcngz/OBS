@@ -129,6 +129,8 @@ public class AkademisyenMenu {
             int kayitSayi = guncelIfade.executeUpdate();
             if (kayitSayi > 0) {
                 System.out.println("✅ Notlar kaydedildi! Ortalama: " + ortalama + " -> " + (gecme ? "GEÇTİ" : "KALDI"));
+
+                NotSistemi.harfNotuGuncelle(connection, dersId);
             } else {
                 System.out.println("❌ Hata: Öğrenci veya ders bulunamadı.");
             }

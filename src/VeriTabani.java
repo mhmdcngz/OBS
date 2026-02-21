@@ -6,7 +6,7 @@ public class VeriTabani {
 
     private static final String DB_URL = "jdbc:mariadb://localhost:3306/obs_db";
     private static final String DB_USER = "root"; // kendi adın
-    private static final String DB_PASS = "ŞİFREN";     // kendi şifren
+    private static final String DB_PASS = "          şifren     ";     // kendi şifren
 
     private static Connection connection = null;
 
