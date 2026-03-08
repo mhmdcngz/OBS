@@ -70,5 +70,3 @@ Sistemi test etmek için veritabanında hazır gelen hesaplar:
 ## 👨‍💻 Geliştirici
 
 **Muhammed Cengiz** - [GitHub Profilim](https://github.com/mhmdcngz)
-
-*Bu proje, üniversite algoritma ve veritabanı konseptlerini birleştirmek amacıyla geliştirilmiştir.*
