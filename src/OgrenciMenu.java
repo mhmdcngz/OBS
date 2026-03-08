@@ -61,12 +61,17 @@ public class OgrenciMenu {
 
     public static void transkript(Kullanici ogrenci) {
         System.out.println("\n--- ALINAN DERSLER VE NOTLAR ---");
-        System.out.printf("%-40s %-12s %-12s %-10s %-10s\n", "Ders", "Vize", "Final", "Ort", "Durum");
-        System.out.println("---------------------------------------------------------------------------------------------");
+        // Başlığa "Harf" eklendi ve tablo hizalamaları (printf) güncellendi
+        System.out.printf("%-35s %-10s %-10s %-10s %-10s %-10s\n", "Ders", "Vize", "Final", "Ort", "Harf", "Durum");
+        System.out.println("------------------------------------------------------------------------------------------");
         try {
             Connection connection = VeriTabani.getConnection();
 
-            String sql = "SELECT c.name, t.midterm_score, t.final_score, t.average, t.is_passed " + "FROM transcripts t " + "JOIN courses c ON t.course_id = c.id " + "WHERE t.student_id = ? ";
+            // SQL sorgusuna t.letter_grade (Harf Notu) eklendi!
+            String sql = "SELECT c.name, t.midterm_score, t.final_score, t.average, t.letter_grade, t.is_passed " +
+                    "FROM transcripts t " +
+                    "JOIN courses c ON t.course_id = c.id " +
+                    "WHERE t.student_id = ? ";
 
             PreparedStatement ifade = connection.prepareStatement(sql);
             ifade.setInt(1, ogrenci.getId());
@@ -82,14 +87,23 @@ public class OgrenciMenu {
                 double ortalamaNot = sonuc.getDouble("average");
                 String ortalamaYazi = sonuc.wasNull() ? "-" : String.format("%.1f", ortalamaNot);
 
+                // YENİ: Veritabanından harf notunu çekiyoruz
+                String harfNotu = sonuc.getString("letter_grade");
+                if (harfNotu == null) {
+                    harfNotu = "-"; // Hoca henüz not girmediyse tire göster
+                }
+
                 String durum;
-                if (sonuc.wasNull()) {
+                // Eğer ortalama yoksa durum belirsizdir, varsa geçti/kaldı yaz
+                if (ortalamaYazi.equals("-")) {
                     durum = "Belirsiz";
                 } else {
                     durum = sonuc.getBoolean("is_passed") ? "GEÇTİ" : "KALDI";
                 }
 
-                System.out.printf("%-40s %-12s %-12s %-10s %-10s\n", sonuc.getString("name"), vizeYazi, finalYazi, ortalamaYazi, durum);
+                // Yazdırma formatı "Harf Notu"nu da içerecek şekilde güncellendi
+                System.out.printf("%-35s %-10s %-10s %-10s %-10s %-10s\n",
+                        sonuc.getString("name"), vizeYazi, finalYazi, ortalamaYazi, harfNotu, durum);
             }
 
         } catch (Exception e) {

@@ -1,31 +1,52 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.io.FileInputStream;
+import java.io.File;
+import java.util.Properties;
 
 public class VeriTabani {
 
     private static final String DB_URL = "jdbc:mariadb://localhost:3306/obs_db";
-    private static final String DB_USER = "root"; // kendi adın
-    private static final String DB_PASS = "          şifren     ";     // kendi şifren
+    private static final String DB_USER = "root";
+    private static String DB_PASS = "";
 
     private static Connection connection = null;
 
-    // Bağlantıyı Getiren Metot (Singleton Mantığı)
+    // Sınıf ilk çalıştığında .env dosyasını okur
+    static {
+        try {
+            File envFile = new File(".env");
+
+            if (envFile.exists()) {
+                Properties props = new Properties();
+                props.load(new FileInputStream(envFile));
+
+                // trim() ile kazara konulmuş boşlukları temizliyoruz
+                if(props.getProperty("DB_PASS") != null) {
+                    DB_PASS = props.getProperty("DB_PASS").trim();
+                }
+            } else {
+                System.out.println("🛑 SİSTEM UYARISI: .env dosyası bulunamadı!");
+                System.out.println("Lütfen projenin ana klasörüne (src'nin hemen dışına) '.env' adında bir dosya oluşturun.");
+            }
+        } catch (Exception e) {
+            System.out.println("🛑 SİSTEM HATASI: .env dosyası okunamadı: " + e.getMessage());
+        }
+    }
+
     public static Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
-                // Bağlantı kapalıysa veya yoksa yenisini aç
                 connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-                System.out.println("Veritabanı bağlantısı BAŞARILI! ✅");
+                // System.out.println("Veritabanı bağlantısı BAŞARILI! ✅");
             }
         } catch (SQLException e) {
-            System.out.println("Bağlantı HATASI! ❌");
-            e.printStackTrace();
+            System.out.println("Bağlantı HATASI! ❌ .env dosyanızdaki şifreyi veya veritabanı ayarlarınızı kontrol edin.");
         }
         return connection;
     }
 
-    // Bağlantıyı Kapatan Metot (İş bitince temizlik için)
     public static void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {

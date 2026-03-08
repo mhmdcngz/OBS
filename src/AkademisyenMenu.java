@@ -12,6 +12,7 @@ public class AkademisyenMenu {
             System.out.println("==============================");
             System.out.println("1- Derslerimi Listele");
             System.out.println("2- Not Girişi Yap");
+            System.out.println("3- Sınıf Harf Notlarını Hesapla");
             System.out.println("0- Çıkış Yap");
             System.out.print("Seçiminiz: ");
             int secim = Metod.guvenliSayiAl();
@@ -23,6 +24,8 @@ public class AkademisyenMenu {
                 dersListele(akademisyen);
             } else if (secim == 2) {
                 notGiris(akademisyen);
+            } else if (secim == 3) {
+                harfNotuHesaplat(akademisyen);
             } else {
                 System.out.println("Hatalı seçim yaptınız");
             }
@@ -134,6 +137,38 @@ public class AkademisyenMenu {
             } else {
                 System.out.println("❌ Hata: Öğrenci veya ders bulunamadı.");
             }
+        } catch (Exception e) {
+            System.out.println("Hata: " + e.getMessage());
+        }
+    }
+
+    public static void harfNotuHesaplat(Kullanici hoca) {
+        dersListele(hoca);
+
+        System.out.print("\nHarf notlarını ve Geçme/Kalma durumunu hesaplatmak istediğiniz dersin ID'sini giriniz: ");
+        int dersId = Metod.guvenliSayiAl();
+
+        try {
+            Connection connection = VeriTabani.getConnection();
+
+            // hoca güvenlik kontrolü
+            String kontrolSQL = "SELECT id FROM courses WHERE id = ? AND teacher_id = ?";
+            PreparedStatement st = connection.prepareStatement(kontrolSQL);
+            st.setInt(1, dersId);
+            st.setInt(2, hoca.getId());
+
+            ResultSet kontrolrs = st.executeQuery();
+
+            if (!kontrolrs.next()) {
+                System.out.println("\n🛑 GÜVENLİK UYARISI: Bu ders size ait değil veya böyle bir ders yok!");
+                return;
+            }
+
+            System.out.println("\n⏳ Sınıfın notları analiz ediliyor. Lütfen bekleyin...");
+
+            NotSistemi.harfNotuGuncelle(connection, dersId);
+
+            System.out.println("✅ İŞLEM TAMAMLANDI! Tüm sınıfın Çan Eğrisi / Harf Notları ve Geçme Durumları başarıyla güncellendi.");
         } catch (Exception e) {
             System.out.println("Hata: " + e.getMessage());
         }
